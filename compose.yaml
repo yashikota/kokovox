@@ -1,0 +1,21 @@
+services:
+  voicevox:
+    image: ghcr.io/voicevox/voicevox_engine:nvidia-0.26.0-dev
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+  kokoro:
+    image: ghcr.io/remsky/kokoro-fastapi-gpu:v0.2.4
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
