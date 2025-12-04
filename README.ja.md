@@ -5,7 +5,7 @@
 ## クイックスタート
 
 ```sh
-docker compose up --build
+docker compose up --build -d
 ```
 
 サーバーは `http://localhost:5108` で起動します。

@@ -7,7 +7,7 @@ A unified Text-to-Speech API that routes to VOICEVOX (Japanese) or Kokoro (Engli
 ## Quick Start
 
 ```sh
-docker compose up --build
+docker compose up --build -d
 ```
 
 The server will be available at `http://localhost:5108`
