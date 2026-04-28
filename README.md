@@ -2,7 +2,7 @@
 
 [日本語版README](README.ja.md)  
 
-A unified Text-to-Speech API that routes to VOICEVOX (Japanese) or Kokoro (English) based on language selection.
+An OpenAI-compatible Text-to-Speech API that routes to VOICEVOX (Japanese) or Kokoro (English) based on the `model` field.  
 
 ## Quick Start
 
@@ -24,13 +24,16 @@ curl http://localhost:5108/health
 
 **Endpoint:** `POST /v1/audio/speech`
 
+This endpoint is compatible with the OpenAI Text-to-Speech API request shape.  
+
 **Request Body:**
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `language` | string | Yes | `"ja"` for Japanese (VOICEVOX) or `"en"` for English (Kokoro) |
-| `text` | string | Yes | Text to synthesize |
+| `model` | string | Yes | `"voicevox"` for Japanese or `"kokoro"` for English |
+| `input` | string | Yes | Text to synthesize |
 | `voice` | string | No | Voice ID. For Japanese: speaker ID (default: `"3"` = Zundamon). For English: voice name (default: `"af_heart"`) |
+| `response_format` | string | No | Audio format. Currently only `"wav"` is supported (default: `"wav"`) |
 | `speed` | number | No | Speech speed (default: `1.0`) |
 
 **Response:** `audio/wav`
@@ -42,7 +45,7 @@ curl http://localhost:5108/health
 ```sh
 curl -X POST http://localhost:5108/v1/audio/speech \
   -H "Content-Type: application/json" \
-  -d '{"language": "ja", "text": "こんにちは、世界！"}' \
+  -d '{"model": "voicevox", "input": "こんにちは、世界！"}' \
   --output hello_ja.wav
 ```
 
@@ -51,7 +54,7 @@ curl -X POST http://localhost:5108/v1/audio/speech \
 ```sh
 curl -X POST http://localhost:5108/v1/audio/speech \
   -H "Content-Type: application/json" \
-  -d '{"language": "en", "text": "Hello, world!"}' \
+  -d '{"model": "kokoro", "input": "Hello, world!"}' \
   --output hello_en.wav
 ```
 
@@ -60,7 +63,7 @@ curl -X POST http://localhost:5108/v1/audio/speech \
 ```sh
 curl -X POST http://localhost:5108/v1/audio/speech \
   -H "Content-Type: application/json" \
-  -d '{"language": "ja", "text": "速く話します", "voice": "1", "speed": 1.5}' \
+  -d '{"model": "voicevox", "input": "速く話します", "voice": "1", "speed": 1.5}' \
   --output fast.wav
 ```
 

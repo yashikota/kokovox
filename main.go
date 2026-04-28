@@ -24,10 +24,11 @@ func getEnv(key, defaultValue string) string {
 }
 
 type SpeechRequest struct {
-	Language string  `json:"language"` // "ja" or "en"
-	Text     string  `json:"text"`
-	Voice    string  `json:"voice,omitempty"`
-	Speed    float64 `json:"speed,omitempty"`
+	Model          string  `json:"model"`
+	Input          string  `json:"input"`
+	Voice          string  `json:"voice,omitempty"`
+	ResponseFormat string  `json:"response_format,omitempty"`
+	Speed          float64 `json:"speed,omitempty"`
 }
 
 type KokoroRequest struct {
@@ -61,21 +62,31 @@ func handleSpeech(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// デフォルト値の設定
 	if req.Speed == 0 {
 		req.Speed = 1.0
+	}
+	if req.ResponseFormat == "" {
+		req.ResponseFormat = "wav"
+	}
+	if req.Input == "" {
+		http.Error(w, "input is required", http.StatusBadRequest)
+		return
+	}
+	if req.ResponseFormat != "wav" {
+		http.Error(w, "unsupported response_format. Use 'wav'", http.StatusBadRequest)
+		return
 	}
 
 	var audioData []byte
 	var err error
 
-	switch req.Language {
-	case "ja":
+	switch req.Model {
+	case "voicevox":
 		audioData, err = synthesizeWithVoiceVox(req)
-	case "en":
+	case "kokoro":
 		audioData, err = synthesizeWithKokoro(req)
 	default:
-		http.Error(w, "Invalid language. Use 'ja' or 'en'", http.StatusBadRequest)
+		http.Error(w, "unsupported model. Use 'voicevox' or 'kokoro'", http.StatusBadRequest)
 		return
 	}
 
@@ -98,7 +109,7 @@ func synthesizeWithVoiceVox(req SpeechRequest) ([]byte, error) {
 
 	queryURL := fmt.Sprintf("%s/audio_query?text=%s&speaker=%s",
 		voicevoxURL,
-		url.QueryEscape(req.Text),
+		url.QueryEscape(req.Input),
 		speakerID,
 	)
 
@@ -154,10 +165,10 @@ func synthesizeWithKokoro(req SpeechRequest) ([]byte, error) {
 	}
 
 	kokoroReq := KokoroRequest{
-		Model:          "kokoro",
-		Input:          req.Text,
+		Model:          req.Model,
+		Input:          req.Input,
 		Voice:          voice,
-		ResponseFormat: "wav",
+		ResponseFormat: req.ResponseFormat,
 		Speed:          req.Speed,
 	}
 
